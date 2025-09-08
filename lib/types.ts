@@ -139,3 +139,26 @@ export interface MatchmakingResponse {
   opponent: User;
   estimatedWaitTime: number;
 }
+
+// Payment types for x402 integration
+export interface PaymentConfig {
+  maxAmount: string; // Maximum amount willing to pay in USDC
+  network: 'base' | 'base-sepolia';
+  token: 'USDC';
+}
+
+export interface PaymentResult {
+  success: boolean;
+  transactionHash?: string;
+  amount?: string;
+  error?: string;
+}
+
+export interface PaidService {
+  id: string;
+  name: string;
+  description: string;
+  endpoint: string;
+  pricePerRequest: string; // USDC amount
+  category: 'ai-battle' | 'nft-enhancement' | 'tournament' | 'analytics';
+}
