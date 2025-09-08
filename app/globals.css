@@ -8,7 +8,8 @@
   }
   
   body {
-    @apply bg-bg text-text-primary;
+    background-color: hsl(220 20% 10%);
+    color: hsl(0 0% 95%);
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image: 
       radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
@@ -19,16 +20,19 @@
 
 @layer components {
   .glass-card {
-    @apply bg-surface bg-opacity-80 backdrop-blur-sm border border-gray-700 rounded-lg shadow-card;
+    background-color: hsl(220 20% 15% / 0.8);
+    @apply backdrop-blur-sm border border-gray-700 rounded-lg;
+    box-shadow: 0 4px 12px hsla(0 0% 0% / 0.20);
   }
   
   .neon-border {
-    @apply border border-neon-blue;
+    @apply border;
+    border-color: #00d4ff;
     box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
   }
   
   .neon-text {
-    @apply text-neon-blue;
+    color: #00d4ff;
     text-shadow: 0 0 10px currentColor;
   }
   
@@ -37,7 +41,9 @@
   }
   
   .btn-secondary {
-    @apply bg-surface border border-gray-600 text-text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 hover:border-gray-500 transition-all duration-200;
+    background-color: hsl(220 20% 15%);
+    color: hsl(0 0% 95%);
+    @apply border border-gray-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 hover:border-gray-500 transition-all duration-200;
   }
   
   .arena-glow {
@@ -46,7 +52,8 @@
   
   .arena-glow::before {
     content: '';
-    @apply absolute inset-0 rounded-full bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink opacity-20 blur-xl;
+    @apply absolute inset-0 rounded-full opacity-20 blur-xl;
+    background: linear-gradient(to right, #00d4ff, #8000ff, #ff0080);
     animation: pulse-neon 3s ease-in-out infinite alternate;
   }
 }

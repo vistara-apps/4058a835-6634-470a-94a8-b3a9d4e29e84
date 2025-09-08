@@ -1,3 +1,5 @@
+import { NFT, User, BattlePass } from './types';
+
 export const GAME_CONFIG = {
   BATTLE_TIMER: 30, // seconds per turn
   MAX_ENERGY: 100,
