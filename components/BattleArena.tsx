@@ -16,7 +16,7 @@ interface BattleArenaProps {
 
 export function BattleArena({ playerNFT, mode, onBattleEnd }: BattleArenaProps) {
   const [battleState, setBattleState] = useState<BattleState | null>(null);
-  const [timer, setTimer] = useState(GAME_CONFIG.BATTLE_TIMER);
+  const [timer, setTimer] = useState<number>(GAME_CONFIG.BATTLE_TIMER);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   // Initialize battle

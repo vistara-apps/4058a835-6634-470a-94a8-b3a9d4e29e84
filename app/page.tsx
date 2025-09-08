@@ -6,12 +6,13 @@ import { FrameHeader } from '@/components/FrameHeader';
 import { GameLobby } from '@/components/GameLobby';
 import { BattleArena } from '@/components/BattleArena';
 import { BattlePassTracker } from '@/components/BattlePassTracker';
+import { PaymentDashboard } from '@/components/PaymentDashboard';
 import { ActionButton } from '@/components/ActionButton';
 import { NFT } from '@/lib/types';
 import { MOCK_BATTLE_PASS } from '@/lib/constants';
-import { Trophy, Home, Star } from 'lucide-react';
+import { Trophy, Home, Star, CreditCard } from 'lucide-react';
 
-type GameState = 'lobby' | 'battle' | 'results';
+type GameState = 'lobby' | 'battle' | 'results' | 'payments';
 
 interface BattleResult {
   winner: 'player' | 'ai';
@@ -67,6 +68,9 @@ export default function CryptoCombatArena() {
             onBattleEnd={handleBattleEnd}
           />
         ) : null;
+
+      case 'payments':
+        return <PaymentDashboard />;
 
       case 'results':
         return battleResult ? (
@@ -144,8 +148,8 @@ export default function CryptoCombatArena() {
         <FrameHeader />
         
         {/* Navigation */}
-        {gameState !== 'lobby' && (
-          <div className="mb-6">
+        <div className="mb-6">
+          {gameState !== 'lobby' && gameState !== 'payments' && (
             <ActionButton
               variant="secondary"
               size="sm"
@@ -154,8 +158,29 @@ export default function CryptoCombatArena() {
               <Home className="w-4 h-4" />
               Back to Lobby
             </ActionButton>
+          )}
+          
+          {/* Main Navigation */}
+          <div className="flex items-center justify-center space-x-2 mt-4">
+            <ActionButton
+              variant={gameState === 'lobby' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={handleReturnToLobby}
+            >
+              <Home className="w-4 h-4" />
+              Arena
+            </ActionButton>
+            
+            <ActionButton
+              variant={gameState === 'payments' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setGameState('payments')}
+            >
+              <CreditCard className="w-4 h-4" />
+              Payments
+            </ActionButton>
           </div>
-        )}
+        </div>
 
         {/* Main Content */}
         <main>
