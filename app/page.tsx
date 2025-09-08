@@ -6,12 +6,17 @@ import { FrameHeader } from '@/components/FrameHeader';
 import { GameLobby } from '@/components/GameLobby';
 import { BattleArena } from '@/components/BattleArena';
 import { BattlePassTracker } from '@/components/BattlePassTracker';
+import { OnboardingFlow } from '@/components/OnboardingFlow';
+import { Leaderboard } from '@/components/Leaderboard';
 import { ActionButton } from '@/components/ActionButton';
-import { NFT } from '@/lib/types';
-import { MOCK_BATTLE_PASS } from '@/lib/constants';
-import { Trophy, Home, Star } from 'lucide-react';
+import { NFT, User } from '@/lib/types';
+import { MOCK_BATTLE_PASS, MOCK_USER } from '@/lib/constants';
+import { Trophy, Home, Star, Users, BarChart3 } from 'lucide-react';
+import { useMiniKitAPI, useGameAPI } from '@/lib/api';
+import toast, { Toaster } from 'react-hot-toast';
 
-type GameState = 'lobby' | 'battle' | 'results';
+type GameState = 'onboarding' | 'lobby' | 'battle' | 'results';
+type AppTab = 'lobby' | 'battlepass' | 'leaderboard';
 
 interface BattleResult {
   winner: 'player' | 'ai';
@@ -21,17 +26,55 @@ interface BattleResult {
 }
 
 export default function CryptoCombatArena() {
-  const [gameState, setGameState] = useState<GameState>('lobby');
+  const [gameState, setGameState] = useState<GameState>('onboarding');
   const [currentBattle, setCurrentBattle] = useState<{
     nft: NFT;
     mode: 'ai' | 'pvp';
   } | null>(null);
   const [battleResult, setBattleResult] = useState<BattleResult | null>(null);
+  const [activeTab, setActiveTab] = useState<AppTab>('lobby');
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
   const { setFrameReady } = useMiniKit();
+  const { connectWallet } = useMiniKitAPI();
+  const { createUser, getUser } = useGameAPI();
 
   useEffect(() => {
     setFrameReady();
   }, [setFrameReady]);
+
+  const handleOnboardingComplete = async (userData: {
+    walletAddress: string;
+    farcasterId?: string;
+    selectedNFT?: any;
+  }) => {
+    setIsLoading(true);
+    try {
+      // Create or get user
+      const userResult = await createUser(userData.walletAddress, userData.farcasterId);
+      if (userResult.success) {
+        setCurrentUser(userResult.data);
+        setGameState('lobby');
+        toast.success('Welcome to Crypto Combat Arena!');
+      } else {
+        // Try to get existing user
+        const existingUser = await getUser(userData.walletAddress);
+        if (existingUser.success) {
+          setCurrentUser(existingUser.data);
+          setGameState('lobby');
+          toast.success('Welcome back to the Arena!');
+        } else {
+          toast.error('Failed to set up your account');
+        }
+      }
+    } catch (error) {
+      console.error('Onboarding error:', error);
+      toast.error('Something went wrong during setup');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleStartBattle = (nft: NFT, mode: 'ai' | 'pvp') => {
     setCurrentBattle({ nft, mode });
@@ -41,6 +84,20 @@ export default function CryptoCombatArena() {
   const handleBattleEnd = (result: BattleResult) => {
     setBattleResult(result);
     setGameState('results');
+    
+    // Update user stats
+    if (currentUser) {
+      const updatedUser = { ...currentUser };
+      if (result.winner === 'player') {
+        updatedUser.wins += 1;
+        updatedUser.xp += result.xpGained;
+        toast.success(`Victory! +${result.xpGained} XP`);
+      } else {
+        updatedUser.losses += 1;
+        toast.error('Defeat! Better luck next time.');
+      }
+      setCurrentUser(updatedUser);
+    }
   };
 
   const handleReturnToLobby = () => {
@@ -49,13 +106,68 @@ export default function CryptoCombatArena() {
     setBattleResult(null);
   };
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'lobby':
+        return <GameLobby onStartBattle={handleStartBattle} />;
+      case 'battlepass':
+        return <BattlePassTracker battlePass={MOCK_BATTLE_PASS} variant="detailed" />;
+      case 'leaderboard':
+        return <Leaderboard currentUser={currentUser || undefined} />;
+      default:
+        return <GameLobby onStartBattle={handleStartBattle} />;
+    }
+  };
+
   const renderContent = () => {
     switch (gameState) {
+      case 'onboarding':
+        return <OnboardingFlow onComplete={handleOnboardingComplete} />;
+
       case 'lobby':
         return (
           <div className="space-y-6">
-            <GameLobby onStartBattle={handleStartBattle} />
-            <BattlePassTracker battlePass={MOCK_BATTLE_PASS} variant="detailed" />
+            {/* Navigation Tabs */}
+            <div className="flex justify-center">
+              <div className="glass-card p-1 inline-flex rounded-lg">
+                <button
+                  onClick={() => setActiveTab('lobby')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    activeTab === 'lobby'
+                      ? 'bg-primary text-white shadow-lg'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface'
+                  }`}
+                >
+                  <Home className="w-4 h-4" />
+                  <span>Arena</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('battlepass')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    activeTab === 'battlepass'
+                      ? 'bg-primary text-white shadow-lg'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface'
+                  }`}
+                >
+                  <Star className="w-4 h-4" />
+                  <span>Battle Pass</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('leaderboard')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    activeTab === 'leaderboard'
+                      ? 'bg-primary text-white shadow-lg'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface'
+                  }`}
+                >
+                  <Trophy className="w-4 h-4" />
+                  <span>Leaderboard</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Tab Content */}
+            {renderTabContent()}
           </div>
         );
 
@@ -141,10 +253,10 @@ export default function CryptoCombatArena() {
   return (
     <div className="min-h-screen bg-bg">
       <div className="container mx-auto px-4 py-4 max-w-4xl">
-        <FrameHeader />
+        {gameState !== 'onboarding' && <FrameHeader />}
         
         {/* Navigation */}
-        {gameState !== 'lobby' && (
+        {gameState !== 'lobby' && gameState !== 'onboarding' && (
           <div className="mb-6">
             <ActionButton
               variant="secondary"
@@ -163,15 +275,30 @@ export default function CryptoCombatArena() {
         </main>
 
         {/* Footer */}
-        <footer className="mt-12 text-center text-text-secondary text-sm">
-          <p>Crypto Combat Arena - Master your NFT collection in real-time blockchain battles</p>
-          <div className="flex items-center justify-center space-x-4 mt-2">
-            <span>Powered by Base</span>
-            <span>•</span>
-            <span>Built with OnchainKit</span>
-          </div>
-        </footer>
+        {gameState !== 'onboarding' && (
+          <footer className="mt-12 text-center text-text-secondary text-sm">
+            <p>Crypto Combat Arena - Master your NFT collection in real-time blockchain battles</p>
+            <div className="flex items-center justify-center space-x-4 mt-2">
+              <span>Powered by Base</span>
+              <span>•</span>
+              <span>Built with OnchainKit</span>
+            </div>
+          </footer>
+        )}
       </div>
+
+      {/* Toast Notifications */}
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'hsl(220 20% 15%)',
+            color: 'hsl(0 0% 95%)',
+            border: '1px solid hsl(220 20% 25%)',
+          },
+        }}
+      />
     </div>
   );
 }
