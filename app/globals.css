@@ -4,27 +4,76 @@
 
 @layer base {
   * {
-    @apply border-gray-700;
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
   }
   
   body {
-    @apply bg-bg text-text-primary;
+    @apply bg-bg text-text-primary antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image: 
-      radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(128, 0, 255, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(128, 0, 255, 0.04) 0%, transparent 50%);
+  }
+
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-bg;
+  }
+
+  /* Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-muted;
   }
 }
 
 @layer components {
+  /* Glass morphism card component */
   .glass-card {
-    @apply bg-surface bg-opacity-80 backdrop-blur-sm border border-gray-700 rounded-lg shadow-card;
+    @apply bg-surface/80 backdrop-blur-sm border border-border rounded-xl shadow-card transition-all duration-300;
   }
   
+  .glass-card:hover {
+    @apply shadow-card-hover border-border/60;
+  }
+  
+  /* Neon effects */
   .neon-border {
-    @apply border border-neon-blue;
+    @apply border border-neon-blue transition-all duration-300;
     box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  }
+  
+  .neon-border:hover {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
   }
   
   .neon-text {
@@ -32,21 +81,333 @@
     text-shadow: 0 0 10px currentColor;
   }
   
+  .neon-text-pink {
+    @apply text-neon-pink;
+    text-shadow: 0 0 10px currentColor;
+  }
+  
+  .neon-text-purple {
+    @apply text-neon-purple;
+    text-shadow: 0 0 10px currentColor;
+  }
+  
+  /* Enhanced button styles */
   .btn-primary {
-    @apply bg-gradient-to-r from-primary to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-neon-blue;
+    @apply bg-gradient-to-r from-primary to-primary-600 text-white px-6 py-3 rounded-lg font-semibold 
+           hover:from-primary-600 hover:to-primary-700 active:from-primary-700 active:to-primary-800
+           transition-all duration-200 shadow-lg hover:shadow-neon-blue
+           focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg;
   }
   
   .btn-secondary {
-    @apply bg-surface border border-gray-600 text-text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 hover:border-gray-500 transition-all duration-200;
+    @apply bg-surface border border-border text-text-primary px-6 py-3 rounded-lg font-semibold 
+           hover:bg-surface-hover hover:border-border/60 active:bg-surface-active
+           transition-all duration-200 shadow-sm hover:shadow-md
+           focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-bg
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-accent {
+    @apply bg-gradient-to-r from-accent to-accent-600 text-accent-950 px-6 py-3 rounded-lg font-semibold 
+           hover:from-accent-600 hover:to-accent-700 active:from-accent-700 active:to-accent-800
+           transition-all duration-200 shadow-lg hover:shadow-lg
+           focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-destructive {
+    @apply bg-gradient-to-r from-destructive to-red-600 text-destructive-foreground px-6 py-3 rounded-lg font-semibold 
+           hover:from-red-600 hover:to-red-700 active:from-red-700 active:to-red-800
+           transition-all duration-200 shadow-lg hover:shadow-lg
+           focus:ring-2 focus:ring-destructive focus:ring-offset-2 focus:ring-offset-bg
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
+  /* Arena glow effect */
   .arena-glow {
     @apply relative;
   }
   
   .arena-glow::before {
     content: '';
-    @apply absolute inset-0 rounded-full bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink opacity-20 blur-xl;
+    @apply absolute inset-0 rounded-2xl bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink opacity-15 blur-xl;
     animation: pulse-neon 3s ease-in-out infinite alternate;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin;
+  }
+
+  /* Health bar */
+  .health-bar {
+    @apply w-full h-2 bg-surface rounded-full overflow-hidden;
+  }
+
+  .health-bar-fill {
+    @apply h-full transition-all duration-500 ease-out;
+  }
+
+  /* Energy bar */
+  .energy-bar {
+    @apply w-full h-1.5 bg-surface rounded-full overflow-hidden;
+  }
+
+  .energy-bar-fill {
+    @apply h-full bg-gradient-to-r from-neon-cyan to-neon-blue transition-all duration-300 ease-out;
+  }
+
+  /* Damage number animation */
+  .damage-number {
+    @apply absolute text-2xl font-bold pointer-events-none;
+    animation: damage-float 1s ease-out forwards;
+  }
+
+  /* Battle action feedback */
+  .action-feedback {
+    @apply absolute inset-0 pointer-events-none;
+    animation: action-flash 0.3s ease-out;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    @apply absolute z-50 px-3 py-2 text-sm bg-surface border border-border rounded-lg shadow-lg
+           opacity-0 pointer-events-none transition-opacity duration-200;
+  }
+
+  .tooltip.show {
+    @apply opacity-100;
+  }
+}
+
+@layer utilities {
+  /* Text gradient utilities */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary to-primary-400 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-neon {
+    @apply bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink bg-clip-text text-transparent;
+  }
+
+  .text-gradient-accent {
+    @apply bg-gradient-to-r from-accent to-accent-400 bg-clip-text text-transparent;
+  }
+
+  /* Animation utilities */
+  .animate-float-delay-1 {
+    animation: float 3s ease-in-out infinite 0.5s;
+  }
+
+  .animate-float-delay-2 {
+    animation: float 3s ease-in-out infinite 1s;
+  }
+
+  /* Custom keyframes */
+  @keyframes damage-float {
+    0% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-50px) scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  @keyframes action-flash {
+    0%, 100% {
+      background-color: transparent;
+    }
+    50% {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-down {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-left {
+    0% {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-right {
+    0% {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes scale-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes scale-out {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+      transform: translateX(calc(-1 * var(--shake-intensity, 2px)));
+    }
+    20%, 40%, 60%, 80% {
+      transform: translateX(var(--shake-intensity, 2px));
+    }
+  }
+
+  @keyframes pulse-neon {
+    0%, 100% {
+      opacity: 0.15;
+    }
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  /* Animation utility classes */
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+
+  .animate-slide-down {
+    animation: slide-down 0.3s ease-out;
+  }
+
+  .animate-slide-left {
+    animation: slide-left 0.3s ease-out;
+  }
+
+  .animate-slide-right {
+    animation: slide-right 0.3s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.2s ease-out;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Health and Energy Bars */
+  .health-bar {
+    @apply w-full h-2 bg-surface rounded-full overflow-hidden;
+  }
+
+  .health-bar-fill {
+    @apply h-full transition-all duration-500 ease-out;
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+  }
+
+  .energy-bar {
+    @apply w-full h-2 bg-surface rounded-full overflow-hidden;
+  }
+
+  .energy-bar-fill {
+    @apply h-full transition-all duration-500 ease-out;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  }
+
+  /* Battle arena specific styles */
+  .arena-glow {
+    background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+  }
+
+  /* Damage number styles */
+  .damage-number {
+    position: absolute;
+    font-weight: bold;
+    font-size: 1.25rem;
+    pointer-events: none;
+    z-index: 50;
+    animation: damage-float 1s ease-out forwards;
+  }
+
+  .damage-number.damage {
+    color: #ef4444;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  }
+
+  .damage-number.critical {
+    color: #8b5cf6;
+    text-shadow: 0 0 15px rgba(139, 92, 246, 0.7);
+    font-size: 1.5rem;
+  }
+
+  .damage-number.heal {
+    color: #10b981;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
   }
 }
