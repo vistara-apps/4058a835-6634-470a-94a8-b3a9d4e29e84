@@ -8,6 +8,7 @@ import { ActionButton } from './ActionButton';
 import { simulateAIBattle } from '@/lib/utils';
 import { battleAnimations, particleEffects } from '@/lib/animations';
 import { announceToScreenReader } from '@/lib/accessibility';
+import { isMobile, triggerHapticFeedback, addTouchEventListeners } from '@/lib/mobile-utils';
 import { Sword, Shield, Zap, RotateCcw, Heart, Battery } from 'lucide-react';
 
 interface BattleArenaProps {
@@ -79,6 +80,12 @@ export function BattleArena({ playerNFT, mode, onBattleEnd }: BattleArenaProps) 
 
     setSelectedAction(action);
     setIsAnimating(true);
+    
+    // Trigger haptic feedback on mobile
+    if (isMobile()) {
+      const hapticType = action === 'ability' ? 'heavy' : action === 'attack' ? 'medium' : 'light';
+      triggerHapticFeedback(hapticType);
+    }
     
     // Add battle log entry
     const actionText = action === 'attack' ? 'launched an attack' : 
@@ -216,10 +223,12 @@ export function BattleArena({ playerNFT, mode, onBattleEnd }: BattleArenaProps) 
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${isMobile() ? 'safe-area-bottom' : ''}`}>
       {/* Battle Header */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-neon-blue mb-2">ROUND {battleState.currentRound}</h2>
+        <h2 className={`${isMobile() ? 'text-xl' : 'text-2xl'} font-bold text-neon-blue mb-2`}>
+          ROUND {battleState.currentRound}
+        </h2>
         <div className="flex items-center justify-center space-x-4">
           <div className="text-lg font-semibold text-accent">
             {timer}s
@@ -238,8 +247,8 @@ export function BattleArena({ playerNFT, mode, onBattleEnd }: BattleArenaProps) 
         {/* Arena Background */}
         <div className="arena-glow absolute inset-0 rounded-2xl" />
         
-        <div className="glass-card p-6 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`glass-card ${isMobile() ? 'p-4' : 'p-6'} relative z-10`}>
+          <div className={`grid grid-cols-1 ${isMobile() ? 'gap-4' : 'md:grid-cols-2 gap-6'}`}>
             {/* Player */}
             <div ref={playerRef} className="relative">
               <CompetitiveCard
@@ -358,12 +367,12 @@ export function BattleArena({ playerNFT, mode, onBattleEnd }: BattleArenaProps) 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Action Buttons */}
         <div className="lg:col-span-2">
-          <div className="glass-card p-6">
-            <h3 className="text-lg font-semibold text-text-primary mb-4 text-center">
+          <div className={`glass-card ${isMobile() ? 'p-4' : 'p-6'}`}>
+            <h3 className={`${isMobile() ? 'text-base' : 'text-lg'} font-semibold text-text-primary mb-4 text-center`}>
               Choose Your Action
             </h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className={`grid ${isMobile() ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-3 gap-4'}`}>
               <ActionButton
                 variant={selectedAction === 'attack' ? 'primary' : 'secondary'}
                 disabled={battleState.player1.currentEnergy < 20 || isAnimating}
@@ -371,6 +380,7 @@ export function BattleArena({ playerNFT, mode, onBattleEnd }: BattleArenaProps) 
                 icon={<Sword className="w-4 h-4" />}
                 iconPosition="left"
                 glow={battleState.player1.currentEnergy >= 20 && !isAnimating}
+                className={isMobile() ? 'min-h-[48px] text-base' : ''}
               >
                 Attack (20 Energy)
               </ActionButton>
@@ -382,6 +392,7 @@ export function BattleArena({ playerNFT, mode, onBattleEnd }: BattleArenaProps) 
                 icon={<Shield className="w-4 h-4" />}
                 iconPosition="left"
                 glow={battleState.player1.currentEnergy >= 10 && !isAnimating}
+                className={isMobile() ? 'min-h-[48px] text-base' : ''}
               >
                 Defend (10 Energy)
               </ActionButton>
@@ -389,6 +400,7 @@ export function BattleArena({ playerNFT, mode, onBattleEnd }: BattleArenaProps) 
               <ActionButton
                 variant={selectedAction === 'ability' ? 'destructive' : 'secondary'}
                 disabled={battleState.player1.currentEnergy < 40 || isAnimating}
+                className={isMobile() ? 'min-h-[48px] text-base' : ''}
                 onClick={() => handleAction('ability')}
                 icon={<Zap className="w-4 h-4" />}
                 iconPosition="left"
