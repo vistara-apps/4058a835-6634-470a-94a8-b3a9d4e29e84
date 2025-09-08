@@ -1,0 +1,30 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "frame": {
+    "version": "1",
+    "name": "Crypto Combat Arena",
+    "subtitle": "Built with Zara",
+    "description": "Crypto Combat Arena is a Base Mini App built with Zara.",
+    "iconUrl": "https://0co.to/images/zara-2.png",
+    "homeUrl": "https://4058a8356634470a94a8b3a9d4e29e84-9ax3.vercel.app",
+    "splashImageUrl": "https://4058a8356634470a94a8b3a9d4e29e84-9ax3.vercel.app/splash.png",
+    "splashBackgroundColor": "#000000",
+    "heroImageUrl": "https://4058a8356634470a94a8b3a9d4e29e84-9ax3.vercel.app/image.png",
+    "tagline": "Crypto Combat Arena",
+    "screenshotUrls": [
+      "https://4058a8356634470a94a8b3a9d4e29e84-9ax3.vercel.app/screenshot.png",
+      "https://4058a8356634470a94a8b3a9d4e29e84-9ax3.vercel.app/screenshot.png"
+    ],
+    "primaryCategory": "social",
+    "tags": [
+      "base",
+      "miniapp",
+      "onchainkit"
+    ],
+    "webhookUrl": "https://4058a8356634470a94a8b3a9d4e29e84-9ax3.vercel.app/api/webhook"
+  }
+}
